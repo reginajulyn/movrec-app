@@ -465,7 +465,7 @@ def render_list_cards(index_score_pairs):
         genre = row.get('listed_in', '')
         desc  = row.get('description', '')[:180]
         if desc: desc += "…"
-        score_html = f"<span class='list-card-score'>⭐ {round(score*100)}% match</span>" if score > 0 else ""
+        score_html = f"<span class='list-card-score'>{round(score*100)}% match</span>" if score > 0 else ""
         st.markdown(f"""
         <div class='list-card'>
             <div class='list-card-header'>
@@ -508,8 +508,8 @@ with st.sidebar:
 
     st.markdown(f"""
     <div style='font-size:0.75rem; color:var(--muted);'>
-        <div style='margin-bottom:0.5rem;'>📦 <b style='color:var(--text);'>{total:,}</b> judul tersedia</div>
-        <div style='margin-bottom:0.5rem;'>🎬 <b style='color:var(--text);'>{n_movies}</b> Movies</div>
+        <div style='margin-bottom:0.5rem;'><b style='color:var(--text);'>{total:,}</b> judul tersedia</div>
+        <div style='margin-bottom:0.5rem;'><b style='color:var(--text);'>{n_movies}</b> Movies</div>
         <div>📺 <b style='color:var(--text);'>{n_shows}</b> TV Shows</div>
     </div>
     """, unsafe_allow_html=True)
@@ -689,7 +689,7 @@ elif menu == "Surprise Me!":
     with col2:
         st.markdown("""
         <div style='background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;'>
-            <div class='motd-badge'>🎲 Random Roulette</div>
+            <div class='motd-badge'>Random Roulette</div>
             <div style='font-size:0.85rem;color:var(--muted);margin-bottom:1.25rem;'>
                 Klik tombol di bawah untuk mendapatkan pilihan film acak dari ribuan judul Netflix.
             </div>

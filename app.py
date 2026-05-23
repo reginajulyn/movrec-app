@@ -213,14 +213,14 @@ def tmdb_url(tmdb_id) -> str:
 # MOOD CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
 MOODS = {
-    "😊  Happy / Feel-Good":      ("comedy family fun animation",           "Comedy · Family"),
-    "😢  Sad / Emotional":        ("drama emotional heartbreaking loss",     "Drama · Tearjerker"),
-    "⚡  Action / Thrilling":     ("action thriller adventure fight",        "Action · Thriller"),
-    "💕  Romantic / Love":        ("romance love relationship wedding",      "Romance · Drama"),
-    "🚀  Sci-Fi / Mind-Bending":  ("science fiction space future robot AI",  "Sci-Fi · Fantasy"),
-    "☕  Chill / Documentary":    ("documentary nature calm travel culture", "Documentary"),
-    "👻  Horror / Suspense":      ("horror scary suspense paranormal",       "Horror · Suspense"),
-    "🎭  Intense Drama":          ("drama crime mystery psychological",      "Crime · Drama"),
+    "Happy / Feel-Good":      ("comedy family fun animation",           "Comedy · Family"),
+    "Sad / Emotional":        ("drama emotional heartbreaking loss",     "Drama · Tearjerker"),
+    "Action / Thrilling":     ("action thriller adventure fight",        "Action · Thriller"),
+    "Romantic / Love":        ("romance love relationship wedding",      "Romance · Drama"),
+    "Sci-Fi / Mind-Bending":  ("science fiction space future robot AI",  "Sci-Fi · Fantasy"),
+    "Chill / Documentary":    ("documentary nature calm travel culture", "Documentary"),
+    "Horror / Suspense":      ("horror scary suspense paranormal",       "Horror · Suspense"),
+    "Intense Drama":          ("drama crime mystery psychological",      "Crime · Drama"),
 }
 
 
@@ -458,7 +458,7 @@ elif menu == "🎭  Mood":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — FILM SEJENIS
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "🔍  Film Sejenis":
+elif menu == "Film Sejenis":
     st.markdown("<div class='ph'>FILM SEJENIS</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Masukkan judul favoritmu — cosine similarity mencarikan kembarannya</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -498,7 +498,7 @@ elif menu == "🔍  Film Sejenis":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — SURPRISE ME
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "🎲  Surprise Me":
+elif menu == "Surprise Me":
     st.markdown("<div class='ph'>SURPRISE ME</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Bingung mau nonton apa? Biarkan sistem yang memilih</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -565,7 +565,7 @@ elif menu == "🎲  Surprise Me":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — ANALYTICS
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "📊  Analytics":
+elif menu == "Analytics":
     st.markdown("<div class='ph'>ANALYTICS</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Eksplorasi distribusi dataset Netflix secara visual</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)

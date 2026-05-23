@@ -668,9 +668,6 @@ elif menu == "Analytics":
             height=280,
         )
         st.plotly_chart(fig4, use_container_width=True)
-        
-        use_container_width=True,
-        height=320,
     )
 
 

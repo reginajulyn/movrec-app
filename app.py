@@ -5,7 +5,7 @@ import requests
 import plotly.graph_objects as go
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-import urllib.parse  # ✅ FIX: import eksplisit submodul urllib.parse
+import urllib.parse 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE CONFIG

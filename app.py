@@ -2,8 +2,10 @@ import streamlit as st
 import joblib
 import pandas as pd
 import requests
+import plotly.graph_objects as go
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+import urllib.parse  # ✅ FIX: import eksplisit submodul urllib.parse
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE CONFIG
@@ -40,13 +42,11 @@ html,body,.stApp,[data-testid="stAppViewContainer"]{
 [data-testid="stToolbar"]{display:none!important;}
 .block-container{padding:1.75rem 2rem 4rem!important; max-width:1360px!important;}
 
-/* ── Scrollbar ── */
 ::-webkit-scrollbar{width:5px; height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg1);}
 ::-webkit-scrollbar-thumb{background:var(--subtle); border-radius:4px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--red-dim);}
 
-/* ── Sidebar ── */
 [data-testid="stSidebar"]{
     background:var(--bg1)!important;
     border-right:1px solid var(--border)!important;
@@ -54,119 +54,51 @@ html,body,.stApp,[data-testid="stAppViewContainer"]{
 [data-testid="stSidebar"] *{font-family:var(--sans)!important;}
 [data-testid="stSidebarContent"]{padding:1.25rem 0.9rem!important;}
 
-.sb-logo{
-    font-family:var(--display); font-size:2.2rem; letter-spacing:4px;
-    color:var(--red); line-height:1; padding:0 4px;
-}
-.sb-sub{
-    font-size:.65rem; letter-spacing:2.5px; text-transform:uppercase;
-    color:var(--muted); margin-bottom:1.5rem; padding:0 4px;
-}
+.sb-logo{font-family:var(--display); font-size:2.2rem; letter-spacing:4px; color:var(--red); line-height:1; padding:0 4px;}
+.sb-sub{font-size:.65rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); margin-bottom:1.5rem; padding:0 4px;}
 .sb-divider{height:1px; background:var(--border); margin:.9rem 0;}
-
-.sb-stat-wrap{
-    background:var(--bg2); border:1px solid var(--border);
-    border-radius:var(--radius); padding:.85rem 1rem; margin-bottom:.75rem;
-}
+.sb-stat-wrap{background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:.85rem 1rem; margin-bottom:.75rem;}
 .sb-stat-row{display:flex; gap:1rem;}
 .sb-stat .v{font-size:1.3rem; font-weight:700; color:var(--text); line-height:1;}
 .sb-stat .v.red{color:var(--red);}
 .sb-stat .l{font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-top:2px;}
-
-.sb-team{
-    background:var(--bg2); border:1px solid var(--border);
-    border-radius:var(--radius); padding:.85rem 1rem;
-    font-size:.72rem; color:var(--muted); line-height:1.8;
-}
+.sb-team{background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:.85rem 1rem; font-size:.72rem; color:var(--muted); line-height:1.8;}
 .sb-team .tt{font-size:.7rem; font-weight:600; color:var(--text); text-transform:uppercase; letter-spacing:1px; margin-bottom:.4rem;}
 
-/* ── Inputs & Buttons ── */
 [data-testid="stSelectbox"]>div>div,
 [data-testid="stTextInput"]>div>div{
     background:var(--bg2)!important; border:1px solid var(--border2)!important;
-    border-radius:var(--radius)!important; color:var(--text)!important;
-    font-size:.875rem!important;
+    border-radius:var(--radius)!important; color:var(--text)!important; font-size:.875rem!important;
 }
 [data-testid="stSelectbox"]>div>div:focus-within,
 [data-testid="stTextInput"]>div>div:focus-within{
-    border-color:var(--red)!important;
-    box-shadow:0 0 0 3px var(--red-glow)!important;
+    border-color:var(--red)!important; box-shadow:0 0 0 3px var(--red-glow)!important;
 }
 .stButton>button{
-    background:var(--red)!important; color:#fff!important;
-    border:none!important; border-radius:var(--radius)!important;
-    font-family:var(--sans)!important; font-weight:600!important;
-    font-size:.82rem!important; letter-spacing:.4px!important;
-    padding:.5rem 1.3rem!important;
+    background:var(--red)!important; color:#fff!important; border:none!important;
+    border-radius:var(--radius)!important; font-family:var(--sans)!important; font-weight:600!important;
+    font-size:.82rem!important; letter-spacing:.4px!important; padding:.5rem 1.3rem!important;
     transition:background .2s,transform .15s,box-shadow .2s!important;
 }
-.stButton>button:hover{
-    background:var(--red-dim)!important; transform:translateY(-1px)!important;
-    box-shadow:0 4px 16px var(--red-glow)!important;
-}
+.stButton>button:hover{background:var(--red-dim)!important; transform:translateY(-1px)!important; box-shadow:0 4px 16px var(--red-glow)!important;}
 .stButton>button:active{transform:translateY(0)!important;}
 
-/* ── Movie Grid ── */
-.grid-row{
-    display:grid; grid-template-columns:repeat(5,1fr);
-    gap:12px; margin-bottom:12px;
-}
-.mc{
-    background:var(--bg2); border:1px solid var(--border);
-    border-radius:var(--radius-lg); overflow:hidden;
-    text-decoration:none; display:block;
-    transition:transform .22s ease, border-color .22s ease, box-shadow .22s ease;
-    position:relative;
-}
-.mc:hover{
-    transform:translateY(-5px) scale(1.01);
-    border-color:rgba(232,35,42,.4);
-    box-shadow:0 12px 32px rgba(0,0,0,.5);
-}
+.grid-row{display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:12px;}
+.mc{background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; text-decoration:none; display:block; transition:transform .22s ease, border-color .22s ease, box-shadow .22s ease; position:relative;}
+.mc:hover{transform:translateY(-5px) scale(1.01); border-color:rgba(232,35,42,.4); box-shadow:0 12px 32px rgba(0,0,0,.5);}
 .mc img{width:100%; aspect-ratio:2/3; object-fit:cover; display:block;}
-.mc-nop{
-    width:100%; aspect-ratio:2/3; background:var(--bg3);
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--display); font-size:1.6rem;
-    color:var(--subtle); letter-spacing:2px;
-}
+.mc-nop{width:100%; aspect-ratio:2/3; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:1.6rem; color:var(--subtle); letter-spacing:2px;}
 .mc-body{padding:.7rem .8rem .85rem;}
-.mc-title{
-    font-weight:600; font-size:.83rem; color:var(--text);
-    margin-bottom:.25rem; white-space:nowrap;
-    overflow:hidden; text-overflow:ellipsis;
-}
+.mc-title{font-weight:600; font-size:.83rem; color:var(--text); margin-bottom:.25rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .mc-genre{font-size:.68rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .mc-tags{display:flex; gap:4px; margin-top:.4rem; flex-wrap:wrap;}
-.tag-score{
-    font-size:.62rem; font-weight:700; padding:.12rem .45rem;
-    background:var(--red-dim); color:#FFD0D0;
-    border-radius:20px; letter-spacing:.4px;
-}
-.tag-type{
-    font-size:.62rem; font-weight:600; padding:.12rem .45rem;
-    background:var(--bg4); color:var(--muted);
-    border-radius:20px; border:1px solid var(--border2);
-}
+.tag-score{font-size:.62rem; font-weight:700; padding:.12rem .45rem; background:var(--red-dim); color:#FFD0D0; border-radius:20px; letter-spacing:.4px;}
+.tag-type{font-size:.62rem; font-weight:600; padding:.12rem .45rem; background:var(--bg4); color:var(--muted); border-radius:20px; border:1px solid var(--border2);}
 
-/* ── List Cards ── */
-.lc{
-    background:var(--bg2); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:.9rem 1.1rem;
-    margin-bottom:.6rem; display:flex; gap:.9rem;
-    align-items:flex-start; transition:border-color .2s,background .2s;
-}
+.lc{background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:.9rem 1.1rem; margin-bottom:.6rem; display:flex; gap:.9rem; align-items:flex-start; transition:border-color .2s,background .2s;}
 .lc:hover{border-color:rgba(232,35,42,.35); background:var(--bg3);}
-.lc-poster{
-    width:60px; min-width:60px; border-radius:6px;
-    aspect-ratio:2/3; object-fit:cover;
-}
-.lc-nop{
-    width:60px; min-width:60px; border-radius:6px;
-    aspect-ratio:2/3; background:var(--bg3);
-    display:flex; align-items:center; justify-content:center;
-    font-size:.65rem; color:var(--muted);
-}
+.lc-poster{width:60px; min-width:60px; border-radius:6px; aspect-ratio:2/3; object-fit:cover;}
+.lc-nop{width:60px; min-width:60px; border-radius:6px; aspect-ratio:2/3; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:.65rem; color:var(--muted);}
 .lc-content{flex:1; min-width:0;}
 .lc-top{display:flex; justify-content:space-between; align-items:baseline; gap:6px; margin-bottom:.2rem;}
 .lc-title{font-weight:600; font-size:.9rem; color:var(--text);}
@@ -174,147 +106,51 @@ html,body,.stApp,[data-testid="stAppViewContainer"]{
 .lc-genre{font-size:.7rem; color:var(--red); margin-bottom:.3rem;}
 .lc-desc{font-size:.78rem; color:var(--muted); line-height:1.55;}
 .lc-actions{display:flex; gap:7px; margin-top:.45rem; flex-wrap:wrap;}
-.btn-t{
-    font-size:.68rem; font-weight:600; padding:.2rem .65rem;
-    background:var(--red); color:#fff; border-radius:5px;
-    text-decoration:none; letter-spacing:.3px;
-    transition:background .15s;
-}
+.btn-t{font-size:.68rem; font-weight:600; padding:.2rem .65rem; background:var(--red); color:#fff; border-radius:5px; text-decoration:none; letter-spacing:.3px; transition:background .15s;}
 .btn-t:hover{background:var(--red-dim);}
-.btn-s{
-    font-size:.68rem; font-weight:600; padding:.2rem .65rem;
-    background:var(--bg3); color:var(--muted); border-radius:5px;
-    text-decoration:none; border:1px solid var(--border2);
-    transition:color .15s, border-color .15s;
-}
+.btn-s{font-size:.68rem; font-weight:600; padding:.2rem .65rem; background:var(--bg3); color:var(--muted); border-radius:5px; text-decoration:none; border:1px solid var(--border2); transition:color .15s, border-color .15s;}
 .btn-s:hover{color:var(--text); border-color:var(--border2);}
 
-/* ── Hero ── */
-.hero-wrap{
-    position:relative; border-radius:var(--radius-xl);
-    overflow:hidden; margin-bottom:2rem;
-    border:1px solid var(--border);
-}
-.hero-img{
-    width:100%; height:400px; object-fit:cover;
-    display:block; filter:brightness(.35) saturate(1.1);
-}
-.hero-overlay{
-    position:absolute; bottom:0; left:0; right:0;
-    padding:2rem 2rem 1.75rem;
-    background:linear-gradient(to top, rgba(8,8,10,.99) 0%, transparent 100%);
-}
-.hero-badge{
-    display:inline-block; background:var(--red); color:#fff;
-    font-size:.6rem; font-weight:700; letter-spacing:2.5px;
-    text-transform:uppercase; padding:.25rem .65rem;
-    border-radius:4px; margin-bottom:.55rem;
-}
-.hero-title{
-    font-family:var(--display); font-size:2.6rem;
-    letter-spacing:3px; color:var(--text); line-height:1;
-    margin-bottom:.4rem;
-}
+.hero-wrap{position:relative; border-radius:var(--radius-xl); overflow:hidden; margin-bottom:2rem; border:1px solid var(--border);}
+.hero-img{width:100%; height:400px; object-fit:cover; display:block; filter:brightness(.35) saturate(1.1);}
+.hero-overlay{position:absolute; bottom:0; left:0; right:0; padding:2rem 2rem 1.75rem; background:linear-gradient(to top, rgba(8,8,10,.99) 0%, transparent 100%);}
+.hero-badge{display:inline-block; background:var(--red); color:#fff; font-size:.6rem; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; padding:.25rem .65rem; border-radius:4px; margin-bottom:.55rem;}
+.hero-title{font-family:var(--display); font-size:2.6rem; letter-spacing:3px; color:var(--text); line-height:1; margin-bottom:.4rem;}
 .hero-meta{font-size:.75rem; color:var(--muted); margin-bottom:1.1rem;}
-.hero-btn{
-    display:inline-flex; align-items:center; gap:6px;
-    background:var(--red); color:#fff;
-    padding:.5rem 1.3rem; border-radius:var(--radius);
-    font-size:.8rem; font-weight:600; letter-spacing:.4px;
-    text-decoration:none;
-    transition:background .2s, box-shadow .2s;
-}
+.hero-btn{display:inline-flex; align-items:center; gap:6px; background:var(--red); color:#fff; padding:.5rem 1.3rem; border-radius:var(--radius); font-size:.8rem; font-weight:600; letter-spacing:.4px; text-decoration:none; transition:background .2s, box-shadow .2s;}
 .hero-btn:hover{background:var(--red-dim); box-shadow:0 4px 20px var(--red-glow);}
 
-/* ── MOTD / Surprise cards ── */
-.motd-card{
-    background:var(--bg2); border:1px solid var(--border);
-    border-radius:var(--radius-xl); padding:1.35rem; height:100%;
-}
-.motd-badge{
-    display:inline-block; background:var(--red); color:#fff;
-    font-size:.6rem; letter-spacing:2px; text-transform:uppercase;
-    font-weight:700; padding:.2rem .6rem; border-radius:4px;
-    margin-bottom:.7rem;
-}
-.motd-title{
-    font-family:var(--display); font-size:1.75rem;
-    letter-spacing:2px; color:var(--text); margin-bottom:.3rem;
-}
+.motd-card{background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.35rem; height:100%;}
+.motd-badge{display:inline-block; background:var(--red); color:#fff; font-size:.6rem; letter-spacing:2px; text-transform:uppercase; font-weight:700; padding:.2rem .6rem; border-radius:4px; margin-bottom:.7rem;}
+.motd-title{font-family:var(--display); font-size:1.75rem; letter-spacing:2px; color:var(--text); margin-bottom:.3rem;}
 .motd-genre{font-size:.75rem; color:var(--red); margin-bottom:.65rem;}
 .motd-desc{font-size:.82rem; color:var(--muted); line-height:1.6;}
 
-/* ── Stat row ── */
 .stat-row{display:flex; gap:10px; margin-bottom:1.5rem;}
-.stat-card{
-    flex:1; background:var(--bg2); border:1px solid var(--border);
-    border-radius:var(--radius); padding:.9rem 1rem;
-}
-.stat-label{
-    font-size:.65rem; letter-spacing:1.5px; text-transform:uppercase;
-    color:var(--muted); margin-bottom:.3rem;
-}
-.stat-value{
-    font-family:var(--display); font-size:1.7rem;
-    letter-spacing:2px; color:var(--text);
-}
+.stat-card{flex:1; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem 1rem;}
+.stat-label{font-size:.65rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:.3rem;}
+.stat-value{font-family:var(--display); font-size:1.7rem; letter-spacing:2px; color:var(--text);}
 .stat-accent{color:var(--red);}
 
-/* ── Section typography ── */
-.ph{
-    font-family:var(--display); font-size:2.8rem; letter-spacing:4px;
-    color:var(--text); line-height:1; margin-bottom:.25rem;
-}
-.ps{
-    font-size:.72rem; letter-spacing:2px; text-transform:uppercase;
-    color:var(--muted); margin-bottom:1.75rem;
-}
-.sr{
-    height:1px; margin:.6rem 0 1.35rem;
-    background:linear-gradient(to right, var(--red), transparent);
-}
-.st2{
-    font-family:var(--display); font-size:1.4rem;
-    letter-spacing:2.5px; color:var(--text); margin-bottom:.15rem;
-}
+.ph{font-family:var(--display); font-size:2.8rem; letter-spacing:4px; color:var(--text); line-height:1; margin-bottom:.25rem;}
+.ps{font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:1.75rem;}
+.sr{height:1px; margin:.6rem 0 1.35rem; background:linear-gradient(to right, var(--red), transparent);}
+.st2{font-family:var(--display); font-size:1.4rem; letter-spacing:2.5px; color:var(--text); margin-bottom:.15rem;}
 
-/* ── Mood pills ── */
 .mood-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1.75rem;}
-.mood-pill{
-    background:var(--bg2); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:1rem .9rem;
-    cursor:pointer; transition:all .2s;
-    display:flex; align-items:center; gap:.75rem;
-}
+.mood-pill{background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem .9rem; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:.75rem;}
 .mood-pill:hover{border-color:var(--red); background:var(--red-glow);}
 .mood-icon{font-size:1.5rem;}
 .mood-label{font-weight:600; font-size:.82rem; color:var(--text);}
 .mood-sub{font-size:.67rem; color:var(--muted);}
 
-/* ── Info box ── */
-.info-box{
-    background:var(--bg2); border:1px solid var(--border);
-    border-radius:var(--radius); padding:1.1rem 1.2rem;
-    font-size:.82rem; color:var(--muted); line-height:1.65;
-}
+.info-box{background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.2rem; font-size:.82rem; color:var(--muted); line-height:1.65;}
 .info-box strong{color:var(--text);}
 
-/* ── Roulette result ── */
-.roulette-card{
-    background:var(--bg3); border:1px solid var(--border2);
-    border-radius:var(--radius-lg); padding:1.1rem;
-    margin-top:.65rem;
-}
+.roulette-card{background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:1.1rem; margin-top:.65rem;}
 
-/* ── Footer ── */
-.footer{
-    margin-top:4rem; padding-top:1.25rem;
-    border-top:1px solid var(--border);
-    text-align:center; font-size:.7rem;
-    color:var(--muted); letter-spacing:1px;
-}
+.footer{margin-top:4rem; padding-top:1.25rem; border-top:1px solid var(--border); text-align:center; font-size:.7rem; color:var(--muted); letter-spacing:1px;}
 
-/* ── Misc ── */
 .stMarkdown p{color:var(--text)!important;}
 div[data-testid="column"]{padding:0 5px!important;}
 [data-testid="stSpinner"]>div{border-top-color:var(--red)!important;}
@@ -323,7 +159,7 @@ div[data-testid="column"]{padding:0 5px!important;}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# LOAD MODEL  (cached — hanya load sekali)
+# LOAD MODEL
 # ══════════════════════════════════════════════════════════════════════════════
 @st.cache_resource(show_spinner="Memuat model…")
 def load_model():
@@ -345,18 +181,28 @@ TMDB_KEY = "0758644da67e27b71fac69a53fab875e"
 def fetch_tmdb(title: str):
     """Ambil poster + TMDB id. Cached 24 jam."""
     try:
-        url  = (f"https://api.themoviedb.org/3/search/movie"
-                f"?api_key={TMDB_KEY}&query={urllib.parse.quote(title)}&language=id-ID")
+        # ✅ FIX: urllib.parse.quote sudah bisa dipanggil karena import eksplisit di atas
+        encoded = urllib.parse.quote(str(title))
+        url = (
+            f"https://api.themoviedb.org/3/search/movie"
+            f"?api_key={TMDB_KEY}&query={encoded}&language=id-ID"
+        )
         res  = requests.get(url, timeout=5).json()
+        # ✅ FIX: guard jika results kosong
+        if not res.get("results"):
+            return None, None
         hit  = res["results"][0]
-        poster = ("https://image.tmdb.org/t/p/w342" + hit["poster_path"]
-                  if hit.get("poster_path") else None)
-        return poster, hit["id"]
+        poster = (
+            "https://image.tmdb.org/t/p/w342" + hit["poster_path"]
+            if hit.get("poster_path") else None
+        )
+        return poster, hit.get("id")
     except Exception:
         return None, None
 
 def yt_url(title: str) -> str:
-    q = urllib.parse.quote(f"{title} official trailer")
+    # ✅ FIX: pastikan title di-cast ke str sebelum di-quote
+    q = urllib.parse.quote(f"{str(title)} official trailer")
     return f"https://www.youtube.com/results?search_query={q}"
 
 def tmdb_url(tmdb_id) -> str:
@@ -399,6 +245,11 @@ def recommend_by_title(title: str, n: int = 10):
 # RENDER HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
 def _card(title, genre, ctype, poster, tid, score=None):
+    # ✅ FIX: pastikan semua input adalah string sebelum diproses
+    title = str(title) if title is not None else ""
+    genre = str(genre) if genre is not None else ""
+    ctype = str(ctype) if ctype is not None else ""
+
     ts  = title.replace("'", "&#39;").replace('"', "&quot;")
     gs  = (genre[:34] + "…") if len(genre) > 34 else genre
     img = (f'<img src="{poster}" alt="{ts}" loading="lazy">'
@@ -428,11 +279,12 @@ def render_grid(pairs, show_score=False, cols=5):
 def render_list(pairs):
     html = ""
     for idx, score in pairs:
-        ro  = df.iloc[idx]
-        t   = str(ro.get("title", ""))
-        g   = str(ro.get("listed_in", ""))
-        d   = str(ro.get("description", ""))[:200] + ("…" if len(str(ro.get("description", ""))) > 200 else "")
-        ts  = t.replace("'", "&#39;")
+        ro   = df.iloc[idx]
+        t    = str(ro.get("title", ""))
+        g    = str(ro.get("listed_in", ""))
+        desc = str(ro.get("description", ""))
+        d    = desc[:200] + ("…" if len(desc) > 200 else "")
+        ts   = t.replace("'", "&#39;")
         p, tid = fetch_tmdb(t)
         sc  = (f'<span class="lc-score">★ {round(score*100)}% match</span>' if score > 0 else "")
         th  = (f'<img class="lc-poster" src="{p}" alt="{ts}" loading="lazy">'
@@ -506,7 +358,7 @@ with st.sidebar:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PLOTLY THEME  (shared)
+# PLOTLY THEME
 # ══════════════════════════════════════════════════════════════════════════════
 PL = dict(
     paper_bgcolor="rgba(0,0,0,0)",
@@ -548,13 +400,11 @@ if menu == "🏠  Home":
                style='margin-top:.9rem;display:inline-flex;'>▶ Trailer</a>
         </div>""", unsafe_allow_html=True)
 
-    # --- Trending
     st.markdown("<div class='st2'>TRENDING SEKARANG</div>", unsafe_allow_html=True)
     st.markdown("<div style='font-size:.75rem;color:var(--muted);margin-bottom:.4rem;'>Konten populer dari database Netflix</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
     render_grid([(i, 0.0) for i in df.sample(10).index])
 
-    # --- Baru Ditambahkan
     st.markdown("<br><div class='st2'>BARU DITAMBAHKAN</div>", unsafe_allow_html=True)
     st.markdown("<div style='font-size:.75rem;color:var(--muted);margin-bottom:.4rem;'>Film & serial terbaru di dataset</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -575,11 +425,10 @@ elif menu == "🎭  Mood":
     st.markdown("<div class='ps'>Sistem mencarikan film yang paling pas dengan vibes kamu</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
 
-    # Mood pills (visual only, mapping ke selectbox)
     mood_keys = list(MOODS.keys())
     pills_html = '<div class="mood-grid">'
     for mk in mood_keys:
-        icon = mk.split()[0]
+        icon  = mk.split()[0]
         label = " ".join(mk.split()[1:])
         sub   = MOODS[mk][1]
         pills_html += (f'<div class="mood-pill">'
@@ -657,13 +506,13 @@ elif menu == "🎲  Surprise Me":
     c1, c2 = st.columns(2, gap="large")
 
     with c1:
-        motd   = st.session_state.motd
-        mt     = str(motd.get("title", ""))
-        mg     = str(motd.get("listed_in", ""))
-        md_txt = str(motd.get("description", ""))
+        motd    = st.session_state.motd
+        mt      = str(motd.get("title", ""))
+        mg      = str(motd.get("listed_in", ""))
+        md_txt  = str(motd.get("description", ""))
         mp, mid = fetch_tmdb(mt)
-        ph  = (f'<img src="{mp}" style="width:100%;border-radius:8px;margin-bottom:.9rem;" loading="lazy">'
-               if mp else "")
+        ph = (f'<img src="{mp}" style="width:100%;border-radius:8px;margin-bottom:.9rem;" loading="lazy">'
+              if mp else "")
         st.markdown(f"""
         <div class='motd-card'>
             <div class='motd-badge'>Film Hari Ini</div>
@@ -698,7 +547,7 @@ elif menu == "🎲  Surprise Me":
             rg  = str(r.get("listed_in", ""))
             rd  = str(r.get("description", ""))
             rp, rid = fetch_tmdb(rt)
-            rph = (f'<img src="{rp}" style="width:100%;border-radius:8px;margin:0.8rem 0;"loading="lazy">'
+            rph = (f'<img src="{rp}" style="width:100%;border-radius:8px;margin:0.8rem 0;" loading="lazy">'
                    if rp else "")
             st.markdown(f"""
             <div class='roulette-card'>
@@ -734,7 +583,6 @@ elif menu == "📊  Analytics":
         <div class='stat-card'><div class='stat-label'>Genre Unik</div><div class='stat-value'>{ng:,}</div></div>
     </div>""", unsafe_allow_html=True)
 
-    # Chart 1 + 2
     col1, col2 = st.columns(2, gap="medium")
 
     with col1:
@@ -776,7 +624,6 @@ elif menu == "📊  Analytics":
             )
             st.plotly_chart(fig2, use_container_width=True)
 
-    # Chart 3 — Top Genre
     st.markdown("<br><div class='st2' style='font-size:1.05rem;'>TOP 10 GENRE</div>", unsafe_allow_html=True)
     if "listed_in" in df.columns:
         gc   = df["listed_in"].str.split(", ").explode().value_counts().head(10)
@@ -802,7 +649,6 @@ elif menu == "📊  Analytics":
         )
         st.plotly_chart(fig3, use_container_width=True)
 
-    # Chart 4 — Rating
     if "rating" in df.columns:
         st.markdown("<br><div class='st2' style='font-size:1.05rem;'>DISTRIBUSI RATING KONTEN</div>", unsafe_allow_html=True)
         rd = df["rating"].dropna().value_counts().sort_values(ascending=False)
@@ -823,7 +669,6 @@ elif menu == "📊  Analytics":
         )
         st.plotly_chart(fig4, use_container_width=True)
 
-    # Tabel sample
     st.markdown("<br><div class='st2' style='font-size:1.05rem;'>SAMPLE DATA</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
     cols_show = [c for c in ["title", "type", "listed_in", "release_year", "rating", "country"] if c in df.columns]

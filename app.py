@@ -396,14 +396,14 @@ def fetch_poster(title):
 # MOOD CONFIG
 # =============================
 mood_config = {
-    "😊 Happy":       "comedy family fun",
-    "😢 Emotional":   "drama emotional heartbreaking",
-    "⚡ Action":       "action thriller adventure",
-    "❤️ Romantic":    "romance love relationship",
-    "🌌 Sci-Fi":      "science fiction space future",
-    "🧘 Chill":       "documentary calm slow",
-    "😱 Horror":      "horror scary suspense",
-    "🎭 Drama":       "drama serious intense",
+    "Happy":       "comedy family fun",
+    "Emotional":   "drama emotional heartbreaking",
+    "Action":       "action thriller adventure",
+    "Romantic":    "romance love relationship",
+    "Sci-Fi":      "science fiction space future",
+    "Chill":       "documentary calm slow",
+    "Horror":      "horror scary suspense",
+    "Drama":       "drama serious intense",
 }
 
 
@@ -496,7 +496,7 @@ with st.sidebar:
 
     menu = st.radio(
         "",
-        ["🏠 Home", "🎭 Mood", "🔍 Cari Film Sejenis", "🎲 Surprise Me!", "📊 Analytics"],
+        ["Home", "Mood", "Cari Film Sejenis", "Surprise Me!", "Analytics"],
         label_visibility="collapsed"
     )
 
@@ -529,7 +529,7 @@ with st.sidebar:
 # =============================
 # HOME
 # =============================
-if menu == "🏠 Home":
+if menu == "Home":
     motd = st.session_state.motd
     motd_title  = motd.get('title', 'Film Hari Ini')
     motd_genre  = motd.get('listed_in', '')
@@ -570,23 +570,23 @@ if menu == "🏠 Home":
     st.markdown("<br>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     with c1:
-        if st.button("🎭 Rekomendasi via Mood", use_container_width=True):
-            st.session_state['nav'] = "🎭 Mood"
+        if st.button("Rekomendasi via Mood", use_container_width=True):
+            st.session_state['nav'] = "Mood"
             st.rerun()
     with c2:
-        if st.button("🔍 Cari Film Sejenis", use_container_width=True):
-            st.session_state['nav'] = "🔍 Cari Film Sejenis"
+        if st.button("Cari Film Sejenis", use_container_width=True):
+            st.session_state['nav'] = "Cari Film Sejenis"
             st.rerun()
     with c3:
-        if st.button("🎲 Surprise Me!", use_container_width=True):
-            st.session_state['nav'] = "🎲 Surprise Me!"
+        if st.button("Surprise Me!", use_container_width=True):
+            st.session_state['nav'] = "Surprise Me!"
             st.rerun()
 
 
 # =============================
 # MOOD
 # =============================
-elif menu == "🎭 Mood":
+elif menu == "Mood":
     st.markdown("<div class='page-header'>MOOD MATCH</div>", unsafe_allow_html=True)
     st.markdown("<div class='page-sub'>Sistem mencarikan film yang paling pas dengan vibes kamu</div>", unsafe_allow_html=True)
     st.markdown("<div class='section-rule'></div>", unsafe_allow_html=True)
@@ -620,7 +620,7 @@ elif menu == "🎭 Mood":
 # =============================
 # CARI FILM SEJENIS
 # =============================
-elif menu == "🔍 Cari Film Sejenis":
+elif menu == "Cari Film Sejenis":
     st.markdown("<div class='page-header'>FILM SEJENIS</div>", unsafe_allow_html=True)
     st.markdown("<div class='page-sub'>Masukkan judul favoritmu, algoritma Cosine Similarity akan mencari kembarannya</div>", unsafe_allow_html=True)
     st.markdown("<div class='section-rule'></div>", unsafe_allow_html=True)
@@ -660,7 +660,7 @@ elif menu == "🔍 Cari Film Sejenis":
 # =============================
 # SURPRISE ME!
 # =============================
-elif menu == "🎲 Surprise Me!":
+elif menu == "Surprise Me!":
     st.markdown("<div class='page-header'>SURPRISE ME!</div>", unsafe_allow_html=True)
     st.markdown("<div class='page-sub'>Bingung mau nonton apa? Biarkan sistem yang memilih</div>", unsafe_allow_html=True)
     st.markdown("<div class='section-rule'></div>", unsafe_allow_html=True)
@@ -696,7 +696,7 @@ elif menu == "🎲 Surprise Me!":
         </div>
         """, unsafe_allow_html=True)
 
-        if st.button("🎲 Putar Roulette!", use_container_width=True):
+        if st.button("Putar Roulette!", use_container_width=True):
             st.session_state.random_pick = df.sample(1).iloc[0]
 
         if st.session_state.random_pick is not None:
@@ -720,7 +720,7 @@ elif menu == "🎲 Surprise Me!":
 # =============================
 # ANALYTICS
 # =============================
-elif menu == "📊 Analytics":
+elif menu == "Analytics":
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
     import seaborn as sns

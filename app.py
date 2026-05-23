@@ -181,14 +181,14 @@ TMDB_KEY = "0758644da67e27b71fac69a53fab875e"
 def fetch_tmdb(title: str):
     """Ambil poster + TMDB id. Cached 24 jam."""
     try:
-        # ✅ FIX: urllib.parse.quote sudah bisa dipanggil karena import eksplisit di atas
+        # FIX: urllib.parse.quote sudah bisa dipanggil karena import eksplisit di atas
         encoded = urllib.parse.quote(str(title))
         url = (
             f"https://api.themoviedb.org/3/search/movie"
             f"?api_key={TMDB_KEY}&query={encoded}&language=id-ID"
         )
         res  = requests.get(url, timeout=5).json()
-        # ✅ FIX: guard jika results kosong
+        # FIX: guard jika results kosong
         if not res.get("results"):
             return None, None
         hit  = res["results"][0]
@@ -201,7 +201,7 @@ def fetch_tmdb(title: str):
         return None, None
 
 def yt_url(title: str) -> str:
-    # ✅ FIX: pastikan title di-cast ke str sebelum di-quote
+    # FIX: pastikan title di-cast ke str sebelum di-quote
     q = urllib.parse.quote(f"{str(title)} official trailer")
     return f"https://www.youtube.com/results?search_query={q}"
 
@@ -245,7 +245,7 @@ def recommend_by_title(title: str, n: int = 10):
 # RENDER HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
 def _card(title, genre, ctype, poster, tid, score=None):
-    # ✅ FIX: pastikan semua input adalah string sebelum diproses
+    # FIX: pastikan semua input adalah string sebelum diproses
     title = str(title) if title is not None else ""
     genre = str(genre) if genre is not None else ""
     ctype = str(ctype) if ctype is not None else ""
@@ -317,7 +317,7 @@ with st.sidebar:
     st.markdown("<div class='sb-sub'>Netflix Recommendation Engine</div>", unsafe_allow_html=True)
 
     menu = st.radio(
-        "nav", ["🏠  Home", "🎭  Mood", "🔍  Film Sejenis", "🎲  Surprise Me", "📊  Analytics"],
+        "nav", ["Home", "Mood", "Film Sejenis", "Surprise Me", "Analytics"],
         label_visibility="collapsed"
     )
 
@@ -371,7 +371,7 @@ PL = dict(
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — HOME
 # ══════════════════════════════════════════════════════════════════════════════
-if menu == "🏠  Home":
+if menu == "Home":
     motd = st.session_state.motd
     mt   = str(motd.get("title", "Featured"))
     mg   = str(motd.get("listed_in", ""))
@@ -420,7 +420,7 @@ if menu == "🏠  Home":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — MOOD
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "🎭  Mood":
+elif menu == "Mood":
     st.markdown("<div class='ph'>MOOD MATCH</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Sistem mencarikan film yang paling pas dengan vibes kamu</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -470,7 +470,7 @@ elif menu == "Film Sejenis":
         menghitung kemiripan berdasarkan genre, deskripsi, dan metadata lainnya.
     </div><br>""", unsafe_allow_html=True)
 
-    query = st.text_input("🔍  Cari judul film…", placeholder="Contoh: Inception, The Crown, Money Heist…")
+    query = st.text_input("Cari judul film…", placeholder="Contoh: Inception, The Crown, Money Heist…")
     if query:
         matched = df[df["title"].str.contains(query, case=False, na=False)]["title"].head(10).tolist()
         if matched:
@@ -538,7 +538,7 @@ elif menu == "Surprise Me":
             </div>
         </div>""", unsafe_allow_html=True)
 
-        if st.button("🎲  Putar Roulette", use_container_width=True):
+        if st.button("Putar Roulette", use_container_width=True):
             st.session_state.roulette = df.sample(1).iloc[0]
 
         if st.session_state.roulette is not None:

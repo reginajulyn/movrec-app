@@ -228,14 +228,14 @@ def tmdb_url(tmdb_id) -> str:
 # MOOD CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
 MOODS = {
-    "😊  Happy / Feel-Good":      ("comedy family fun animation",           "Comedy · Family"),
-    "😢  Sad / Emotional":        ("drama emotional heartbreaking loss",     "Drama · Tearjerker"),
-    "⚡  Action / Thrilling":     ("action thriller adventure fight",        "Action · Thriller"),
-    "💕  Romantic / Love":        ("romance love relationship wedding",      "Romance · Drama"),
-    "🚀  Sci-Fi / Mind-Bending":  ("science fiction space future robot AI",  "Sci-Fi · Fantasy"),
-    "☕  Chill / Documentary":    ("documentary nature calm travel culture", "Documentary"),
-    "👻  Horror / Suspense":      ("horror scary suspense paranormal",       "Horror · Suspense"),
-    "🎭  Intense Drama":          ("drama crime mystery psychological",      "Crime · Drama"),
+    "Happy / Feel-Good":      ("comedy family fun animation",           "Comedy · Family"),
+    "Sad / Emotional":        ("drama emotional heartbreaking loss",     "Drama · Tearjerker"),
+    "Action / Thrilling":     ("action thriller adventure fight",        "Action · Thriller"),
+    "Romantic / Love":        ("romance love relationship wedding",      "Romance · Drama"),
+    "Sci-Fi / Mind-Bending":  ("science fiction space future robot AI",  "Sci-Fi · Fantasy"),
+    "Chill / Documentary":    ("documentary nature calm travel culture", "Documentary"),
+    "Horror / Suspense":      ("horror scary suspense paranormal",       "Horror · Suspense"),
+    "Intense Drama":          ("drama crime mystery psychological",      "Crime · Drama"),
 }
 
 

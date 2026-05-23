@@ -386,7 +386,7 @@ PL = dict(
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — HOME
 # ══════════════════════════════════════════════════════════════════════════════
-if menu == "🏠  Home":
+if menu == "Home":
     motd = st.session_state.motd
     mt   = str(motd.get("title", "Featured"))
     mg   = str(motd.get("listed_in", ""))
@@ -398,7 +398,7 @@ if menu == "🏠  Home":
         <div class='hero-wrap'>
             <img class='hero-img' src='{mp}' alt='{mt}'/>
             <div class='hero-overlay'>
-                <div class='hero-badge'>✦ Pilihan Hari Ini</div>
+                <div class='hero-badge'>Pilihan Hari Ini</div>
                 <div class='hero-title'>{mt.upper()}</div>
                 <div class='hero-meta'>{mg}</div>
                 <a class='hero-btn' href='{tu}' target='_blank' rel='noopener'>▶ Tonton Trailer</a>
@@ -408,7 +408,7 @@ if menu == "🏠  Home":
         st.markdown(f"""
         <div style='background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);
                     padding:2.5rem 2rem;margin-bottom:2rem;'>
-            <div class='hero-badge'>✦ Pilihan Hari Ini</div>
+            <div class='hero-badge'>Pilihan Hari Ini</div>
             <div class='hero-title'>{mt.upper()}</div>
             <div class='hero-meta'>{mg}</div>
             <a class='hero-btn' href='{tu}' target='_blank' rel='noopener'
@@ -435,7 +435,7 @@ if menu == "🏠  Home":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — MOOD
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "🎭  Mood":
+elif menu == "Mood":
     st.markdown("<div class='ph'>MOOD MATCH</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Sistem mencarikan film yang paling pas dengan vibes kamu</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -443,12 +443,9 @@ elif menu == "🎭  Mood":
     mood_keys = list(MOODS.keys())
     pills_html = '<div class="mood-grid">'
     for mk in mood_keys:
-        icon  = mk.split()[0]
-        label = " ".join(mk.split()[1:])
-        sub   = MOODS[mk][1]
+        sub = MOODS[mk][1]
         pills_html += (f'<div class="mood-pill">'
-                       f'<span class="mood-icon">{icon}</span>'
-                       f'<div><div class="mood-label">{label}</div>'
+                       f'<div><div class="mood-label">{mk}</div>'
                        f'<div class="mood-sub">{sub}</div></div></div>')
     pills_html += "</div>"
     st.markdown(pills_html, unsafe_allow_html=True)
@@ -461,7 +458,7 @@ elif menu == "🎭  Mood":
     if run:
         with st.spinner("Mencari film terbaik…"):
             res = recommend_by_mood(sel)
-        label = " ".join(sel.split()[1:])
+        label = sel
         st.markdown(f"<br><div class='st2'>HASIL: {label.upper()}</div>", unsafe_allow_html=True)
         st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
         render_grid(res, show_score=True)
@@ -473,7 +470,7 @@ elif menu == "🎭  Mood":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — FILM SEJENIS
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "🔍  Film Sejenis":
+elif menu == "Film Sejenis":
     st.markdown("<div class='ph'>FILM SEJENIS</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Masukkan judul favoritmu — cosine similarity mencarikan kembarannya</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -485,7 +482,7 @@ elif menu == "🔍  Film Sejenis":
         menghitung kemiripan berdasarkan genre, deskripsi, dan metadata lainnya.
     </div><br>""", unsafe_allow_html=True)
 
-    query = st.text_input("🔍  Cari judul film…", placeholder="Contoh: Inception, The Crown, Money Heist…")
+    query = st.text_input("Cari judul film…", placeholder="Contoh: Inception, The Crown, Money Heist…")
     if query:
         matched = df[df["title"].str.contains(query, case=False, na=False)]["title"].head(10).tolist()
         if matched:
@@ -513,7 +510,7 @@ elif menu == "🔍  Film Sejenis":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — SURPRISE ME
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "🎲  Surprise Me":
+elif menu == "Surprise Me":
     st.markdown("<div class='ph'>SURPRISE ME</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Bingung mau nonton apa? Biarkan sistem yang memilih</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -553,7 +550,7 @@ elif menu == "🎲  Surprise Me":
             </div>
         </div>""", unsafe_allow_html=True)
 
-        if st.button("🎲  Putar Roulette", use_container_width=True):
+        if st.button("Putar Roulette", use_container_width=True):
             st.session_state.roulette = df.sample(1).iloc[0]
 
         if st.session_state.roulette is not None:
@@ -580,7 +577,7 @@ elif menu == "🎲  Surprise Me":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — ANALYTICS
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "📊  Analytics":
+elif menu == "Analytics":
     st.markdown("<div class='ph'>ANALYTICS</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Eksplorasi distribusi dataset Netflix secara visual</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -683,6 +680,9 @@ elif menu == "📊  Analytics":
             height=280,
         )
         st.plotly_chart(fig4, use_container_width=True)
+
+
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # FOOTER

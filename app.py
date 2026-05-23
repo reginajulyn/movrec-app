@@ -5,7 +5,7 @@ import requests
 import plotly.graph_objects as go
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-import urllib.parse 
+import urllib.parse  # ✅ FIX: import eksplisit submodul urllib.parse
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE CONFIG
@@ -163,9 +163,24 @@ div[data-testid="column"]{padding:0 5px!important;}
 # ══════════════════════════════════════════════════════════════════════════════
 @st.cache_resource(show_spinner="Memuat model…")
 def load_model():
-    data       = joblib.load("movies.pkl")
-    tfidf_vec  = joblib.load("tfidf.pkl")
-    tfidf_mat  = joblib.load("tfidf_matrix.pkl")
+    data      = joblib.load("movies.pkl")
+    tfidf_vec = joblib.load("tfidf.pkl")
+    tfidf_mat = joblib.load("tfidf_matrix.pkl")
+
+    # ✅ FIX: Normalise index — jika index DataFrame adalah kolom title
+    # (akibat set_index("title") di notebook), reset supaya jadi RangeIndex
+    # dan pastikan kolom "title" selalu ada sebagai kolom biasa.
+    if data.index.name == "title" or (
+        data.index.dtype == object and "title" not in data.columns
+    ):
+        data = data.reset_index()          # index "title" → jadi kolom
+    elif "title" not in data.columns:
+        # Fallback: coba kolom pertama sebagai title
+        data = data.rename(columns={data.columns[0]: "title"})
+
+    # Pastikan index adalah RangeIndex bersih (0, 1, 2, …)
+    data = data.reset_index(drop=True)
+
     idx_series = pd.Series(data.index, index=data["title"]).drop_duplicates()
     return data, tfidf_vec, tfidf_mat, idx_series
 
@@ -181,14 +196,14 @@ TMDB_KEY = "0758644da67e27b71fac69a53fab875e"
 def fetch_tmdb(title: str):
     """Ambil poster + TMDB id. Cached 24 jam."""
     try:
-        # FIX: urllib.parse.quote sudah bisa dipanggil karena import eksplisit di atas
+        # ✅ FIX: urllib.parse.quote sudah bisa dipanggil karena import eksplisit di atas
         encoded = urllib.parse.quote(str(title))
         url = (
             f"https://api.themoviedb.org/3/search/movie"
             f"?api_key={TMDB_KEY}&query={encoded}&language=id-ID"
         )
         res  = requests.get(url, timeout=5).json()
-        # FIX: guard jika results kosong
+        # ✅ FIX: guard jika results kosong
         if not res.get("results"):
             return None, None
         hit  = res["results"][0]
@@ -201,7 +216,7 @@ def fetch_tmdb(title: str):
         return None, None
 
 def yt_url(title: str) -> str:
-    # FIX: pastikan title di-cast ke str sebelum di-quote
+    # ✅ FIX: pastikan title di-cast ke str sebelum di-quote
     q = urllib.parse.quote(f"{str(title)} official trailer")
     return f"https://www.youtube.com/results?search_query={q}"
 
@@ -213,14 +228,14 @@ def tmdb_url(tmdb_id) -> str:
 # MOOD CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
 MOODS = {
-    "Happy / Feel-Good":      ("comedy family fun animation",           "Comedy · Family"),
-    "Sad / Emotional":        ("drama emotional heartbreaking loss",     "Drama · Tearjerker"),
-    "Action / Thrilling":     ("action thriller adventure fight",        "Action · Thriller"),
-    "Romantic / Love":        ("romance love relationship wedding",      "Romance · Drama"),
-    "Sci-Fi / Mind-Bending":  ("science fiction space future robot AI",  "Sci-Fi · Fantasy"),
-    "Chill / Documentary":    ("documentary nature calm travel culture", "Documentary"),
-    "Horror / Suspense":      ("horror scary suspense paranormal",       "Horror · Suspense"),
-    "Intense Drama":          ("drama crime mystery psychological",      "Crime · Drama"),
+    "😊  Happy / Feel-Good":      ("comedy family fun animation",           "Comedy · Family"),
+    "😢  Sad / Emotional":        ("drama emotional heartbreaking loss",     "Drama · Tearjerker"),
+    "⚡  Action / Thrilling":     ("action thriller adventure fight",        "Action · Thriller"),
+    "💕  Romantic / Love":        ("romance love relationship wedding",      "Romance · Drama"),
+    "🚀  Sci-Fi / Mind-Bending":  ("science fiction space future robot AI",  "Sci-Fi · Fantasy"),
+    "☕  Chill / Documentary":    ("documentary nature calm travel culture", "Documentary"),
+    "👻  Horror / Suspense":      ("horror scary suspense paranormal",       "Horror · Suspense"),
+    "🎭  Intense Drama":          ("drama crime mystery psychological",      "Crime · Drama"),
 }
 
 
@@ -245,7 +260,7 @@ def recommend_by_title(title: str, n: int = 10):
 # RENDER HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
 def _card(title, genre, ctype, poster, tid, score=None):
-    # FIX: pastikan semua input adalah string sebelum diproses
+    # ✅ FIX: pastikan semua input adalah string sebelum diproses
     title = str(title) if title is not None else ""
     genre = str(genre) if genre is not None else ""
     ctype = str(ctype) if ctype is not None else ""
@@ -317,7 +332,7 @@ with st.sidebar:
     st.markdown("<div class='sb-sub'>Netflix Recommendation Engine</div>", unsafe_allow_html=True)
 
     menu = st.radio(
-        "nav", ["Home", "Mood", "Film Sejenis", "Surprise Me", "Analytics"],
+        "nav", ["🏠  Home", "🎭  Mood", "🔍  Film Sejenis", "🎲  Surprise Me", "📊  Analytics"],
         label_visibility="collapsed"
     )
 
@@ -371,7 +386,7 @@ PL = dict(
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — HOME
 # ══════════════════════════════════════════════════════════════════════════════
-if menu == "Home":
+if menu == "🏠  Home":
     motd = st.session_state.motd
     mt   = str(motd.get("title", "Featured"))
     mg   = str(motd.get("listed_in", ""))
@@ -420,7 +435,7 @@ if menu == "Home":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — MOOD
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "Mood":
+elif menu == "🎭  Mood":
     st.markdown("<div class='ph'>MOOD MATCH</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Sistem mencarikan film yang paling pas dengan vibes kamu</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -458,7 +473,7 @@ elif menu == "Mood":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — FILM SEJENIS
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "Film Sejenis":
+elif menu == "🔍  Film Sejenis":
     st.markdown("<div class='ph'>FILM SEJENIS</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Masukkan judul favoritmu — cosine similarity mencarikan kembarannya</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -470,7 +485,7 @@ elif menu == "Film Sejenis":
         menghitung kemiripan berdasarkan genre, deskripsi, dan metadata lainnya.
     </div><br>""", unsafe_allow_html=True)
 
-    query = st.text_input("Cari judul film…", placeholder="Contoh: Inception, The Crown, Money Heist…")
+    query = st.text_input("🔍  Cari judul film…", placeholder="Contoh: Inception, The Crown, Money Heist…")
     if query:
         matched = df[df["title"].str.contains(query, case=False, na=False)]["title"].head(10).tolist()
         if matched:
@@ -498,7 +513,7 @@ elif menu == "Film Sejenis":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — SURPRISE ME
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "Surprise Me":
+elif menu == "🎲  Surprise Me":
     st.markdown("<div class='ph'>SURPRISE ME</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Bingung mau nonton apa? Biarkan sistem yang memilih</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -538,7 +553,7 @@ elif menu == "Surprise Me":
             </div>
         </div>""", unsafe_allow_html=True)
 
-        if st.button("Putar Roulette", use_container_width=True):
+        if st.button("🎲  Putar Roulette", use_container_width=True):
             st.session_state.roulette = df.sample(1).iloc[0]
 
         if st.session_state.roulette is not None:
@@ -565,7 +580,7 @@ elif menu == "Surprise Me":
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE — ANALYTICS
 # ══════════════════════════════════════════════════════════════════════════════
-elif menu == "Analytics":
+elif menu == "📊  Analytics":
     st.markdown("<div class='ph'>ANALYTICS</div>", unsafe_allow_html=True)
     st.markdown("<div class='ps'>Eksplorasi distribusi dataset Netflix secara visual</div>", unsafe_allow_html=True)
     st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
@@ -668,8 +683,6 @@ elif menu == "Analytics":
             height=280,
         )
         st.plotly_chart(fig4, use_container_width=True)
-    )
-
 
 # ══════════════════════════════════════════════════════════════════════════════
 # FOOTER

@@ -668,12 +668,7 @@ elif menu == "Analytics":
             height=280,
         )
         st.plotly_chart(fig4, use_container_width=True)
-
-    st.markdown("<br><div class='st2' style='font-size:1.05rem;'>SAMPLE DATA</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sr'></div>", unsafe_allow_html=True)
-    cols_show = [c for c in ["title", "type", "listed_in", "release_year", "rating", "country"] if c in df.columns]
-    st.dataframe(
-        df[cols_show].head(20).reset_index(drop=True),
+        
         use_container_width=True,
         height=320,
     )

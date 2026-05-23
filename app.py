@@ -332,7 +332,7 @@ with st.sidebar:
     st.markdown("<div class='sb-sub'>Netflix Recommendation Engine</div>", unsafe_allow_html=True)
 
     menu = st.radio(
-        "nav", ["🏠  Home", "🎭  Mood", "🔍  Film Sejenis", "🎲  Surprise Me", "📊  Analytics"],
+        "nav", ["Home", "Mood", "Film Sejenis", "Surprise Me", "Analytics"],
         label_visibility="collapsed"
     )
 

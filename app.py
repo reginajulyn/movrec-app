@@ -313,12 +313,25 @@ def _card(title, genre, ctype, poster, tid, score=None):
            if poster else f'<div class="mc-nop">{title[:2].upper()}</div>')
     sc  = (f'<span class="tag-score">{round(score*100)}%</span>' if score and score > 0 else "")
     tp  = (f'<span class="tag-type">{ctype}</span>' if ctype else "")
-    return (f'<a class="mc" href="{yt_url(title)}" target="_blank" rel="noopener">'
-            f'{img}<div class="mc-body">'
-            f'<div class="mc-title" title="{ts}">{title}</div>'
-            f'<div class="mc-genre">{gs}</div>'
-            f'<div class="mc-tags">{sc}{tp}</div>'
-            f'</div></a>')
+    return (
+    f'<div class="mc">'
+    f'<a href="{yt_url(title)}" target="_blank" rel="noopener" style="text-decoration:none;">'
+    f'{img}'
+    f'<div class="mc-body">'
+    f'<div class="mc-title" title="{ts}">{title}</div>'
+    f'<div class="mc-genre">{gs}</div>'
+    f'</a>'
+
+    f'<div class="mc-tags">{sc}{tp}</div>'
+
+    f'<div style="display:flex;gap:6px;margin-top:.55rem;">'
+    f'<a class="btn-t" href="{yt_url(title)}" target="_blank" rel="noopener">▶ Trailer</a>'
+    f'<a class="btn-s" href="{tmdb_url(tid)}" target="_blank" rel="noopener">TMDB</a>'
+    f'</div>'
+
+    f'</div>'
+    f'</div>'
+)
 
 def render_grid(pairs, show_score=False, cols=5):
     rows = [pairs[i : i + cols] for i in range(0, len(pairs), cols)]

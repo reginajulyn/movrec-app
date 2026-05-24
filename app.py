@@ -52,11 +52,11 @@ html,body,.stApp,[data-testid="stAppViewContainer"]{
     border-right:1px solid var(--border)!important;
 }
 
-button[kind="header"] span {
+header button[kind="header"] span {
     font-size: 0 !important;
 }
 
-button[kind="header"] span::before {
+header button[kind="header"] span::before {
     content: "←";
     font-size: 24px !important;
     color: white;

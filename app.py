@@ -52,16 +52,15 @@ html,body,.stApp,[data-testid="stAppViewContainer"]{
     border-right:1px solid var(--border)!important;
 }
 
-button[kind="header"] {
-    background: transparent !important;
-    color: white !important;
-    border: none !important;
+button[kind="header"] span {
+    font-size: 0 !important;
 }
 
-button[kind="header"] svg {
-    color: white !important;
-    width: 22px !important;
-    height: 22px !important;
+button[kind="header"] span::before {
+    content: "←";
+    font-size: 24px !important;
+    color: white;
+    font-weight: bold;
 }
 
 [data-testid="stSidebar"] *{font-family:var(--sans)!important;}

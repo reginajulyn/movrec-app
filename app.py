@@ -194,34 +194,48 @@ TMDB_KEY = "0758644da67e27b71fac69a53fab875e"
 
 @st.cache_data(show_spinner=False, ttl=86400)
 def fetch_tmdb(title: str):
-    """Ambil poster + TMDB id. Cached 24 jam."""
+    """Ambil poster + TMDB id + media type."""
     try:
-        # ✅ FIX: urllib.parse.quote sudah bisa dipanggil karena import eksplisit di atas
         encoded = urllib.parse.quote(str(title))
+
+        # ✅ FIX: gunakan multi search supaya movie & tv show kedetect
         url = (
-            f"https://api.themoviedb.org/3/search/movie"
+            f"https://api.themoviedb.org/3/search/multi"
             f"?api_key={TMDB_KEY}&query={encoded}&language=id-ID"
         )
-        res  = requests.get(url, timeout=5).json()
-        # ✅ FIX: guard jika results kosong
+
+        res = requests.get(url, timeout=5).json()
+
         if not res.get("results"):
-            return None, None
-        hit  = res["results"][0]
+            return None, None, None
+
+        hit = res["results"][0]
+
         poster = (
             "https://image.tmdb.org/t/p/w342" + hit["poster_path"]
             if hit.get("poster_path") else None
         )
-        return poster, hit.get("id")
+
+        return poster, hit.get("id"), hit.get("media_type")
+
     except Exception:
-        return None, None
+        return None, None, None
+
 
 def yt_url(title: str) -> str:
-    # ✅ FIX: pastikan title di-cast ke str sebelum di-quote
     q = urllib.parse.quote(f"{str(title)} official trailer")
     return f"https://www.youtube.com/results?search_query={q}"
 
-def tmdb_url(tmdb_id) -> str:
-    return f"https://www.themoviedb.org/movie/{tmdb_id}" if tmdb_id else "#"
+
+# ✅ FIX: support movie & tv
+def tmdb_url(tmdb_id, media_type) -> str:
+    if not tmdb_id or not media_type:
+        return "#"
+
+    if media_type == "tv":
+        return f"https://www.themoviedb.org/tv/{tmdb_id}"
+
+    return f"https://www.themoviedb.org/movie/{tmdb_id}"
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -287,7 +301,7 @@ def render_grid(pairs, show_score=False, cols=5):
             t  = str(ro.get("title", ""))
             g  = str(ro.get("listed_in", ""))
             ct = str(ro.get("type", ""))
-            p, tid = fetch_tmdb(t)
+            p, tid, media_type = fetch_tmdb(t)
             html += _card(t, g, ct, p, tid, score if show_score else None)
         st.markdown(f'<div class="grid-row">{html}</div>', unsafe_allow_html=True)
 
@@ -300,7 +314,7 @@ def render_list(pairs):
         desc = str(ro.get("description", ""))
         d    = desc[:200] + ("…" if len(desc) > 200 else "")
         ts   = t.replace("'", "&#39;")
-        p, tid = fetch_tmdb(t)
+        p, tid, media_type = fetch_tmdb(t)
         sc  = (f'<span class="lc-score">★ {round(score*100)}% match</span>' if score > 0 else "")
         th  = (f'<img class="lc-poster" src="{p}" alt="{ts}" loading="lazy">'
                if p else '<div class="lc-nop">N/A</div>')
@@ -310,7 +324,7 @@ def render_list(pairs):
                  f'<div class="lc-desc">{d}</div>'
                  f'<div class="lc-actions">'
                  f'<a class="btn-t" href="{yt_url(t)}" target="_blank" rel="noopener">▶ Trailer</a>'
-                 f'<a class="btn-s" href="{tmdb_url(tid)}" target="_blank" rel="noopener">TMDB</a>'
+                 f'<a class="btn-s" href="{tmdb_url(tid, media_type)}" target="_blank" rel="noopener">TMDB</a>'
                  f'</div></div></div>')
     st.markdown(html, unsafe_allow_html=True)
 
@@ -390,7 +404,7 @@ if menu == "Home":
     motd = st.session_state.motd
     mt   = str(motd.get("title", "Featured"))
     mg   = str(motd.get("listed_in", ""))
-    mp, mid = fetch_tmdb(mt)
+    mp, mid, media_type = fetch_tmdb(mt)
     tu   = yt_url(mt)
 
     if mp:
@@ -522,7 +536,7 @@ elif menu == "Surprise Me":
         mt      = str(motd.get("title", ""))
         mg      = str(motd.get("listed_in", ""))
         md_txt  = str(motd.get("description", ""))
-        mp, mid = fetch_tmdb(mt)
+        mp, mid, media_type = fetch_tmdb(mt)
         ph = (f'<img src="{mp}" style="width:100%;border-radius:8px;margin-bottom:.9rem;" loading="lazy">'
               if mp else "")
         st.markdown(f"""
@@ -534,7 +548,7 @@ elif menu == "Surprise Me":
             <div class='motd-desc'>{md_txt}</div>
             <div style='margin-top:.9rem;display:flex;gap:7px;'>
                 <a class='btn-t' href='{yt_url(mt)}' target='_blank' rel='noopener'>▶ Trailer</a>
-                <a class='btn-s' href='{tmdb_url(mid)}' target='_blank' rel='noopener'>TMDB</a>
+                <a class='btn-s' href='{tmdb_url(mid, media_type)}' target='_blank' rel='noopener'>TMDB</a>
             </div>
         </div>""", unsafe_allow_html=True)
 
@@ -558,7 +572,7 @@ elif menu == "Surprise Me":
             rt  = str(r.get("title", ""))
             rg  = str(r.get("listed_in", ""))
             rd  = str(r.get("description", ""))
-            rp, rid = fetch_tmdb(rt)
+            rp, rid, media_type = fetch_tmdb(rt)
             rph = (f'<img src="{rp}" style="width:100%;border-radius:8px;margin:0.8rem 0;" loading="lazy">'
                    if rp else "")
             st.markdown(f"""
@@ -569,7 +583,7 @@ elif menu == "Surprise Me":
                 <div class='motd-desc'>{rd}</div>
                 <div style='margin-top:.75rem;display:flex;gap:7px;'>
                     <a class='btn-t' href='{yt_url(rt)}' target='_blank' rel='noopener'>▶ Trailer</a>
-                    <a class='btn-s' href='{tmdb_url(rid)}' target='_blank' rel='noopener'>TMDB</a>
+                    <a class='btn-s' href='{tmdb_url(rid, media_type)}' target='_blank' rel='noopener'>TMDB</a>
                 </div>
             </div>""", unsafe_allow_html=True)
 

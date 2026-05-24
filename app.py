@@ -326,7 +326,7 @@ def _card(title, genre, ctype, poster, tid, score=None):
 
     f'<div style="display:flex;gap:6px;margin-top:.55rem;">'
     f'<a class="btn-t" href="{yt_url(title)}" target="_blank" rel="noopener">▶ Trailer</a>'
-    f'<a class="btn-s" href="{tmdb_url(tid)}" target="_blank" rel="noopener">TMDB</a>'
+    f'<a class="btn-s" href="{tmdb_url(tid) if tid else "#"}" target="_blank" rel="noopener">TMDB</a>'
     f'</div>'
 
     f'</div>'

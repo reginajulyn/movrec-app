@@ -227,14 +227,14 @@ YOUTUBE_API_KEY = "AIzaSyCwz9kNH0rrzuOpHQ_fqKvnbInKQTs5AWU"
 @st.cache_data(show_spinner=False, ttl=86400)
 def yt_url(title: str) -> str:
     try:
-        query = f"{str(title)} netflix official trailer"
+        query = f"{str(title)} official trailer"
 
         url = (
             "https://www.googleapis.com/youtube/v3/search"
             f"?part=snippet"
             f"&q={urllib.parse.quote(query)}"
             f"&key={YOUTUBE_API_KEY}"
-            f"&maxResults=5"
+            f"&maxResults=1"
             f"&type=video"
         )
 
@@ -242,12 +242,11 @@ def yt_url(title: str) -> str:
 
         items = response.get("items", [])
 
-        for item in items:
-            video_id = item["id"].get("videoId")
-            if video_id:
-                return f"https://www.youtube.com/watch?v={video_id}"
+        if items:
+            video_id = items[0]["id"]["videoId"]
+            return f"https://www.youtube.com/watch?v={video_id}"
 
-        # fallback ke search kalau video tidak ketemu
+        # fallback kalau benar-benar tidak ada
         q = urllib.parse.quote(query)
         return f"https://www.youtube.com/results?search_query={q}"
 

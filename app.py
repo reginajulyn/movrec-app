@@ -222,9 +222,34 @@ def fetch_tmdb(title: str):
         return None, None, None
 
 
+YOUTUBE_API_KEY = "AIzaSyCwz9kNH0rrzuOpHQ_fqKvnbInKQTs5AWU"
+
+@st.cache_data(show_spinner=False, ttl=86400)
 def yt_url(title: str) -> str:
-    q = urllib.parse.quote(f"{str(title)} official trailer")
-    return f"https://www.youtube.com/results?search_query={q}"
+    try:
+        query = f"{str(title)} official trailer"
+
+        url = (
+            "https://www.googleapis.com/youtube/v3/search"
+            f"?part=snippet"
+            f"&q={urllib.parse.quote(query)}"
+            f"&key={YOUTUBE_API_KEY}"
+            f"&maxResults=1"
+            f"&type=video"
+        )
+
+        response = requests.get(url, timeout=5).json()
+
+        items = response.get("items")
+
+        if items:
+            video_id = items[0]["id"]["videoId"]
+            return f"https://www.youtube.com/watch?v={video_id}"
+
+        return "https://www.youtube.com"
+
+    except Exception:
+        return "https://www.youtube.com"
 
 
 # ✅ FIX: support movie & tv

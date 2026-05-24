@@ -154,6 +154,15 @@ html,body,.stApp,[data-testid="stAppViewContainer"]{
 .stMarkdown p{color:var(--text)!important;}
 div[data-testid="column"]{padding:0 5px!important;}
 [data-testid="stSpinner"]>div{border-top-color:var(--red)!important;}
+
+button[kind="header"] {
+    display: none !important;
+}
+
+[data-testid="collapsedControl"] {
+    display: none !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 

@@ -240,19 +240,16 @@ def yt_url(title: str) -> str:
 
         response = requests.get(url, timeout=5).json()
 
-        items = response.get("items", [])
+        items = response.get("items")
 
         if items:
             video_id = items[0]["id"]["videoId"]
             return f"https://www.youtube.com/watch?v={video_id}"
 
-        # fallback kalau benar-benar tidak ada
-        q = urllib.parse.quote(query)
-        return f"https://www.youtube.com/results?search_query={q}"
+        return "https://www.youtube.com"
 
     except Exception:
-        q = urllib.parse.quote(f"{str(title)} official trailer")
-        return f"https://www.youtube.com/results?search_query={q}"
+        return "https://www.youtube.com"
 
 
 # ✅ FIX: support movie & tv

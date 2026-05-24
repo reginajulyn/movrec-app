@@ -51,6 +51,19 @@ html,body,.stApp,[data-testid="stAppViewContainer"]{
     background:var(--bg1)!important;
     border-right:1px solid var(--border)!important;
 }
+
+button[kind="header"] {
+    background: transparent !important;
+    color: white !important;
+    border: none !important;
+}
+
+button[kind="header"] svg {
+    color: white !important;
+    width: 22px !important;
+    height: 22px !important;
+}
+
 [data-testid="stSidebar"] *{font-family:var(--sans)!important;}
 [data-testid="stSidebarContent"]{padding:1.25rem 0.9rem!important;}
 

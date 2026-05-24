@@ -227,29 +227,33 @@ YOUTUBE_API_KEY = "AIzaSyCwz9kNH0rrzuOpHQ_fqKvnbInKQTs5AWU"
 @st.cache_data(show_spinner=False, ttl=86400)
 def yt_url(title: str) -> str:
     try:
-        query = f"{str(title)} official trailer"
+        query = f"{str(title)} netflix official trailer"
 
         url = (
             "https://www.googleapis.com/youtube/v3/search"
             f"?part=snippet"
             f"&q={urllib.parse.quote(query)}"
             f"&key={YOUTUBE_API_KEY}"
-            f"&maxResults=1"
+            f"&maxResults=5"
             f"&type=video"
         )
 
         response = requests.get(url, timeout=5).json()
 
-        items = response.get("items")
+        items = response.get("items", [])
 
-        if items:
-            video_id = items[0]["id"]["videoId"]
-            return f"https://www.youtube.com/watch?v={video_id}"
+        for item in items:
+            video_id = item["id"].get("videoId")
+            if video_id:
+                return f"https://www.youtube.com/watch?v={video_id}"
 
-        return "https://www.youtube.com"
+        # fallback ke search kalau video tidak ketemu
+        q = urllib.parse.quote(query)
+        return f"https://www.youtube.com/results?search_query={q}"
 
     except Exception:
-        return "https://www.youtube.com"
+        q = urllib.parse.quote(f"{str(title)} official trailer")
+        return f"https://www.youtube.com/results?search_query={q}"
 
 
 # ✅ FIX: support movie & tv

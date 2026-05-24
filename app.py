@@ -301,7 +301,7 @@ def recommend_by_title(title: str, n: int = 10):
 # ══════════════════════════════════════════════════════════════════════════════
 # RENDER HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
-def _card(title, genre, ctype, poster, tid, score=None):
+def _card(title, genre, ctype, poster, tid, media_type, score=None):
     # ✅ FIX: pastikan semua input adalah string sebelum diproses
     title = str(title) if title is not None else ""
     genre = str(genre) if genre is not None else ""
@@ -309,30 +309,47 @@ def _card(title, genre, ctype, poster, tid, score=None):
 
     ts  = title.replace("'", "&#39;").replace('"', "&quot;")
     gs  = (genre[:34] + "…") if len(genre) > 34 else genre
-    img = (f'<img src="{poster}" alt="{ts}" loading="lazy">'
-           if poster else f'<div class="mc-nop">{title[:2].upper()}</div>')
-    sc  = (f'<span class="tag-score">{round(score*100)}%</span>' if score and score > 0 else "")
-    tp  = (f'<span class="tag-type">{ctype}</span>' if ctype else "")
+
+    img = (
+        f'<img src="{poster}" alt="{ts}" loading="lazy">'
+        if poster else
+        f'<div class="mc-nop">{title[:2].upper()}</div>'
+    )
+
+    sc = (
+        f'<span class="tag-score">{round(score*100)}%</span>'
+        if score and score > 0 else ""
+    )
+
+    tp = (
+        f'<span class="tag-type">{ctype}</span>'
+        if ctype else ""
+    )
+
     return (
-    f'<div class="mc">'
-    f'<a href="{yt_url(title)}" target="_blank" rel="noopener" style="text-decoration:none;">'
-    f'{img}'
-    f'<div class="mc-body">'
-    f'<div class="mc-title" title="{ts}">{title}</div>'
-    f'<div class="mc-genre">{gs}</div>'
-    f'</a>'
+        f'<div class="mc">'
 
-    f'<div class="mc-tags">{sc}{tp}</div>'
+        f'<a href="{yt_url(title)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">'
 
-    f'<div style="display:flex;gap:6px;margin-top:.55rem;">'
-    f'<a class="btn-t" href="{yt_url(title)}" target="_blank" rel="noopener">▶ Trailer</a>'
-    f'<a class="btn-s" href="{tmdb_url(tid) if tid else "#"}" target="_blank" rel="noopener">TMDB</a>'
-    f'</div>'
+        f'{img}'
 
-    f'</div>'
-    f'</div>'
-)
+        f'<div class="mc-body">'
+        f'<div class="mc-title" title="{ts}">{title}</div>'
+        f'<div class="mc-genre">{gs}</div>'
+        f'</a>'
 
+        f'<div class="mc-tags">{sc}{tp}</div>'
+
+        f'<div style="display:flex;gap:6px;margin-top:.55rem;">'
+
+        f'<a class="btn-t" href="{yt_url(title)}" target="_blank" rel="noopener">▶ Trailer</a>'
+
+        f'<a class="btn-s" href="{tmdb_url(tid, media_type)}" target="_blank" rel="noopener">TMDB</a>'
+
+        f'</div>'
+        f'</div>'
+        f'</div>'
+    )
 def render_grid(pairs, show_score=False, cols=5):
     rows = [pairs[i : i + cols] for i in range(0, len(pairs), cols)]
     for row in rows:
@@ -343,7 +360,16 @@ def render_grid(pairs, show_score=False, cols=5):
             g  = str(ro.get("listed_in", ""))
             ct = str(ro.get("type", ""))
             p, tid, media_type = fetch_tmdb(t)
-            html += _card(t, g, ct, p, tid, score if show_score else None)
+            html += _card(
+            t,
+            g,
+            ct,
+            p,
+            tid,
+            media_type,
+            score if show_score else None
+        )
+            
         st.markdown(f'<div class="grid-row">{html}</div>', unsafe_allow_html=True)
 
 def render_list(pairs):

@@ -242,14 +242,17 @@ def yt_url(title: str) -> str:
 
         items = response.get("items")
 
-        if items:
+        if items and "videoId" in items[0]["id"]:
             video_id = items[0]["id"]["videoId"]
             return f"https://www.youtube.com/watch?v={video_id}"
 
-        return "https://www.youtube.com"
+        # fallback kalau trailer ga ketemu
+        q = urllib.parse.quote(query)
+        return f"https://www.youtube.com/results?search_query={q}"
 
     except Exception:
-        return "https://www.youtube.com"
+        q = urllib.parse.quote(f"{str(title)} official trailer")
+        return f"https://www.youtube.com/results?search_query={q}"
 
 
 # ✅ FIX: support movie & tv
